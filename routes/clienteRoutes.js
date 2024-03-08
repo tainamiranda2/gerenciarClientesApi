@@ -44,5 +44,32 @@ clienteRoutes.post("/cliente" ,async(req, res)=>{
   
         //res.send("Pegando o corpo da requisicao")
   
-  
+        clienteRoutes.get("/clienteFiltrar", async (req, res) => {
+          try {
+            // Verifica se há parâmetros de consulta na URL
+            let { nome, email, telefone } = req.query;
+            let filtro = {};
+        
+            // Converte os parâmetros para minúsculas
+            nome = nome ? nome.toLowerCase() : nome;
+            email = email ? email.toLowerCase() : email;
+            telefone = telefone ? telefone.toLowerCase() : telefone;
+        
+            // Constrói o objeto de filtro com base nos parâmetros fornecidos
+            if (nome) filtro.nome = { contains: nome };
+            if (email) filtro.email = { contains: email };
+            if (telefone) filtro.telefone = { contains: telefone };
+        
+            // Faz a consulta ao banco de dados com base no filtro
+            const clientes = await prisma.cliente.findMany({
+              where: filtro,
+            });
+        
+            return res.status(200).json(clientes);
+          } catch (error) {
+            console.error("Erro ao buscar clientes:", error);
+            return res.status(500).json({ error: "Erro interno do servidor" });
+          }
+        });
+        
 module.exports=clienteRoutes;
