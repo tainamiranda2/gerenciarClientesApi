@@ -12,6 +12,7 @@ model Cliente{
  id Int @id @default(autoincrement())
  nome String
 email  String
+ telefone String
 coordenada_x String @default("")
  coordenada_y String @default("")
 }

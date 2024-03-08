@@ -7,7 +7,7 @@ const clienteRoutes=express.Router()
 
 clienteRoutes.get("/cliente",async(req, res)=>{
        // console.log(req.body)
-       const cliente = await prisma.arquiteto.findMany()    
+       const cliente = await prisma.cliente.findMany()    
  
   return res.status(200).json(cliente)
     
