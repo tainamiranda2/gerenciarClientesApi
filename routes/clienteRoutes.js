@@ -5,7 +5,7 @@ const { req, res} = require("express");
 const express =require("express")
 const clienteRoutes=express.Router()
 
-clienteRoutes.get("/cliente",async(req, res)=>{
+ clienteRoutes.get("/cliente",async(req, res)=>{
        // console.log(req.body)
        const cliente = await prisma.cliente.findMany()    
  
@@ -44,7 +44,7 @@ clienteRoutes.post("/cliente" ,async(req, res)=>{
   
         //res.send("Pegando o corpo da requisicao")
   
-        clienteRoutes.get("/clienteFiltrar", async (req, res) => {
+       clienteRoutes.get("/clienteFiltrar", async (req, res) => {
           try {
             // Verifica se há parâmetros de consulta na URL
             let { nome, email, telefone } = req.query;
@@ -72,117 +72,89 @@ clienteRoutes.post("/cliente" ,async(req, res)=>{
           }
         });
         
-       /* clienteRoutes.get("/clienteRota", async (req, res) => {
-          try {
-            // Função para calcular a distância entre dois pontos (euclidiana)
-            function calcularDistancia(ponto1, ponto2) {
-              if (!ponto1.coordenada_x || !ponto1.coordenada_y || !ponto2.coordenada_x || !ponto2.coordenada_y) {
-                // Se uma das coordenadas estiver faltando, retorne Infinity para indicar uma distância impossível
-                return Infinity;
-              }
-              const x1 = parseFloat(ponto1.coordenada_x);
-              const y1 = parseFloat(ponto1.coordenada_y);
-              const x2 = parseFloat(ponto2.coordenada_x);
-              const y2 = parseFloat(ponto2.coordenada_y);
-              return Math.sqrt(Math.pow(x2 - x1, 2) + Math.pow(y2 - y1, 2));
-            }
-            
-            
-            // Função para calcular a rota ótima usando força bruta
-            function calcularRotaOtima(clientes) {
-              let melhorRota = [];
-              let menorDistancia = Infinity;
-            
-              // Função para gerar todas as permutações dos clientes
-              function permutacoes(atual, disponiveis) {
-                if (disponiveis.length === 0) {
-                  let distanciaTotal = 0;
-                  for (let i = 0; i < atual.length - 1; i++) {
-                    distanciaTotal += calcularDistancia(atual[i], atual[i + 1]);
-                  }
-                  distanciaTotal += calcularDistancia(atual[atual.length - 1], atual[0]);
-            
-                  if (distanciaTotal < menorDistancia) {
-                    menorDistancia = distanciaTotal;
-                    melhorRota = atual.slice();
-                  }
-                } else {
-                  for (let i = 0; i < disponiveis.length; i++) {
-                    const novoAtual = atual.concat(disponiveis[i]);
-                    const novosDisponiveis = disponiveis.slice(0, i).concat(disponiveis.slice(i + 1));
-                    permutacoes(novoAtual, novosDisponiveis);
-                  }
-                }
-              }
-            
-              // Iniciar o processo de permutação
-              permutacoes([], clientes);
-            
-              return melhorRota;
-            }
-                         
-            
-            // Supondo que você já tenha a lista de clientes disponíveis no banco de dados
-            const clientes = await prisma.cliente.findMany();
-            console.log("Clientes:", clientes)
-            const rotaOtima = calcularRotaOtima(clientes);
-            console.log("Rota ótima:", rotaOtima)
-            // Retorne a rota ótima como resposta
-            return res.status(200).json(rotaOtima);
-         
-          } catch (error) {
-            console.error("Erro ao calcular rota ótima:", error);
-            return res.status(500).json({ error: "Erro interno do servidor ao calcular a rota ótima" });
-          }
-        });
-        */
-        function calcularDistancia(ponto1, ponto2) {
-          return Math.sqrt(Math.pow(ponto2.coordenada_x - ponto1.coordenada_x, 2) + Math.pow(ponto2.coordenada_y - ponto1.coordenada_y, 2));
-        }
-        
-        // Função para calcular a rota ótima usando força bruta
-        async function calcularRotaOtima(cliente) {
-          let melhorRota = [];
-          let menorDistancia = Infinity;
-        
-          // Função para gerar todas as permutações das cliente
-          function permutacoes(atual, disponiveis) {
-            if (disponiveis.length === 0) {
-              let distanciaTotal = 0;
-              for (let i = 0; i < atual.length - 1; i++) {
-                distanciaTotal += calcularDistancia(atual[i], atual[i + 1]);
-              }
-              distanciaTotal += calcularDistancia(atual[atual.length - 1], atual[0]);
-        
-              if (distanciaTotal < menorDistancia) {
-                menorDistancia = distanciaTotal;
-                melhorRota = atual.slice();
-              }
-            } else {
-              for (let i = 0; i < disponiveis.length; i++) {
-                const novoAtual = atual.concat(disponiveis[i]);
-                const novosDisponiveis = disponiveis.slice(0, i).concat(disponiveis.slice(i + 1));
-                permutacoes(novoAtual, novosDisponiveis);
-              }
-            }
-          }
-        
-          // Iniciar o processo de permutação
-          permutacoes([], cliente);
-        
-          return melhorRota;
-        }
-        
-        // Rota API para calcular a rota ótima
-        clienteRoutes.get('/calcularRotaOtima', async (req, res) => {
-          try {
-            const cliente = await prisma.cliente.findMany(); // Obtém os dados do banco de dados
-            const rotaOtima = await calcularRotaOtima(cliente); // Calcula a rota ótima
-            res.json({ rota_otima: rotaOtima });
-          } catch (error) {
-            console.error("Erro ao calcular rota ótima:", error);
-            res.status(500).json({ error: "Erro interno do servidor ao calcular a rota ótima" });
-          }
-        });
-        
+       
+    
+
+// Função para calcular a distância entre dois pontos (euclidiana)
+clienteRoutes.get('/calcularRotaOtima', async (req, res) => {
+function calcularDistancia(ponto1, ponto2) {
+  const dx = ponto2.x - ponto1.x;
+  const dy = ponto2.y - ponto1.y;
+  return Math.sqrt(dx * dx + dy * dy); // Distância euclidiana
+}
+
+const clientes= await prisma.cliente.findMany(); 
+
+  const pontos = clientes.map(cliente => ({
+    nome: cliente.nome,
+    x: parseFloat(cliente.coordenada_x),
+    y: parseFloat(cliente.coordenada_y)
+  }));
+  
+/*const pontos = [
+  { nome: "Empresa", x: 0, y: 0 }, // Empresa
+  { nome: "Pajuçara", x: -9.6601, y: -35.7125 },
+  { nome: "Pontal da Barra", x: -9.6540, y: -35.7138 },
+  { nome: "Jaraguá", x: -9.6701, y: -35.7285 },
+  { nome: "Jatiúca", x: -9.6555, y: -35.7272 },
+  { nome: "Cruz das Almas", x: -9.6209, y: -35.7219 },
+  { nome: "Farol", x: -9.6574, y: -35.7096 },
+  { nome: "Ponta Verde", x: -9.6603, y: -35.7060 }
+];
+*/
+// Função para calcular a rota ótima usando força bruta
+function calcularRotaOtima(pontos) {
+  let melhorRota = []; // Inicializa a melhor rota encontrada
+  let menorDistancia = Infinity; // Inicializa a menor distância como infinito
+  
+  // Função recursiva para gerar todas as permutações dos pontos
+  function permutacoes(atual, disponiveis) {
+    if (disponiveis.length === 0) {
+      // Se todos os pontos foram visitados, calcule a distância total da rota
+      let distanciaTotal = 0;
+      for (let i = 0; i < atual.length - 1; i++) {
+        distanciaTotal += calcularDistancia(atual[i], atual[i + 1]);
+      }
+      // Adicione a distância de volta ao ponto inicial
+      distanciaTotal += calcularDistancia(atual[atual.length - 1], atual[0]);
+      
+      // Verifica se a nova rota é melhor que a atual
+      if (distanciaTotal < menorDistancia) {
+        menorDistancia = distanciaTotal;
+        melhorRota = atual.slice(); // Atualiza a melhor rota
+      }
+    } else {
+      // Para cada ponto disponível, gere novas rotas
+      for (let i = 0; i < disponiveis.length; i++) {
+        const novoAtual = atual.concat(disponiveis[i]); // Adiciona um novo ponto à rota atual
+        const novosDisponiveis = disponiveis.slice(0, i).concat(disponiveis.slice(i + 1)); // Remove o ponto usado dos disponíveis
+        permutacoes(novoAtual, novosDisponiveis); // Chamada recursiva para gerar novas permutações
+      }
+    }
+  }
+  
+  // Inicia o processo de permutação com uma rota vazia e todos os pontos disponíveis
+  permutacoes([pontos[0]], pontos.slice(1)); // Começa da empresa (ponto 0)
+  
+  // Adiciona o ponto inicial no final da rota
+  melhorRota.push(pontos[0]);
+  
+  return melhorRota; // Retorna a melhor rota encontrada
+}
+try {
+
+
+  const rotaOtima =  calcularRotaOtima(pontos);
+ /// console.log("Rota ótima calculada:", rotaOtima);
+  
+  res.json({ rotaOtima });
+} catch (error) {
+  //console.error("Erro ao calcular rota ótima:", error);
+  res.status(500).json({ error: "Erro interno do servidor ao calcular a rota ótima" });
+}
+const rotaOtima = calcularRotaOtima(pontos);
+//console.log("Rota ótima:", rotaOtima);
+
+})
+
 module.exports=clienteRoutes;
